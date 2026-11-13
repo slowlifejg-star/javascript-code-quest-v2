@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Code Quest V2 — Robot Training Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-robot" aria-hidden="true">🤖</span>
+      <div>
+        <h1>JavaScript Code Quest <span class="v2">V2</span></h1>
+        <p class="brand-sub">Robot Training Lab — ห้องฝึกหุ่นยนต์</p>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="xp-box" title="XP รวม">
+        <div class="xp-label"><span>⭐ XP</span><b id="xpText">0 / 100</b></div>
+        <div class="xp-bar"><div id="xpFill" class="xp-fill"></div></div>
+      </div>
+      <div class="progress-pill" id="progressText">0 / 10 ด่าน</div>
+      <button class="btn btn-ghost btn-sm" id="resetBtn" type="button">↺ รีเซ็ต</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- 1. เลือกด่าน -->
+    <nav class="levels card" aria-label="เลือกด่าน">
+      <h2 class="card-title">🗺️ เลือกด่าน</h2>
+      <ol id="levelList" class="level-list"></ol>
+    </nav>
+
+    <main class="workspace">
+      <section class="col-left">
+        <!-- บทเรียน -->
+        <details class="card lesson" id="lessonCard" open>
+          <summary class="card-title" id="lessonTitle">📘 บทเรียน</summary>
+          <div class="lesson-body" id="lessonBody"></div>
+        </details>
+
+        <!-- 2. ภารกิจ -->
+        <section class="card mission">
+          <div class="step-tabs" id="stepTabs" role="tablist"></div>
+          <h2 class="card-title" id="missionTitle">🎯 ภารกิจ</h2>
+          <div id="missionTask" class="mission-task"></div>
+          <div id="givenBox" class="given-box"></div>
+        </section>
+
+        <!-- คำถามวิเคราะห์ (ด่าน 10) -->
+        <section class="card quiz-card hidden" id="quizCard">
+          <h2 class="card-title">🧩 วิเคราะห์ก่อนเขียนโค้ด <span class="analysis-state" id="analysisState"></span></h2>
+          <div id="quizBody"></div>
+          <div class="actions"><button class="btn btn-check" id="quizCheckBtn" type="button">✔ ตรวจการวิเคราะห์</button></div>
+        </section>
+
+        <!-- 3. Editor -->
+        <section class="card editor-card" id="editorCard">
+          <div class="editor-head">
+            <span class="card-title">💻 โค้ดของคุณ</span>
+            <span class="line-count" id="lineCount">0 บรรทัด</span>
+          </div>
+          <div class="editor">
+            <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
+            <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="ตัวแก้ไขโค้ด JavaScript" placeholder="// เขียนโค้ด JavaScript ของคุณเองที่นี่&#10;// อ่านสถานการณ์ ข้อกำหนด และตัวอย่างพฤติกรรมด้านบนก่อนเริ่ม"></textarea>
+          </div>
+          <div id="customInputs" class="custom-inputs hidden"></div>
+          <div class="actions">
+            <button class="btn btn-run" id="runBtn" type="button" title="Ctrl+Enter">▶ ทดลองรัน <small>Run Code</small></button>
+            <button class="btn btn-check" id="checkBtn" type="button">✔ ตรวจคำตอบ <small>Check Answer</small></button>
+            <button class="btn btn-ghost" id="hintBtn" type="button">💡 คำใบ้</button>
+            <button class="btn btn-ghost" id="resetCodeBtn" type="button" title="ล้างโค้ดใน editor">🧹 ล้างโค้ด</button>
+          </div>
+          <p class="action-help"><b>ทดลองรัน</b> = รันด้วยค่าตัวอย่าง ดูผลและหุ่นยนต์ (ไม่ให้คะแนน) · <b>ตรวจคำตอบ</b> = ทดสอบหลายกรณี ผ่านครบจึงผ่านขั้น</p>
+        </section>
+
+        <!-- 6. คำใบ้ -->
+        <section class="card hints hidden" id="hintCard">
+          <h2 class="card-title">💡 คำใบ้</h2>
+          <ol id="hintList"></ol>
+          <button class="btn btn-ghost btn-sm hidden" id="solutionBtn" type="button">👀 ดูเฉลย</button>
+          <pre class="solution hidden" id="solutionBox"></pre>
+        </section>
+      </section>
+
+      <section class="col-right">
+        <!-- 9. หุ่นยนต์ -->
+        <section class="card robot-card">
+          <div class="robot-head">
+            <h2 class="card-title">🤖 พื้นที่จำลองหุ่นยนต์</h2>
+            <span class="robot-status" id="robotStatus">พร้อม</span>
+          </div>
+          <div id="stage" class="stage"></div>
+        </section>
+
+        <!-- เปรียบเทียบ ด่าน 5 vs 6 -->
+        <section class="card compare hidden" id="compareCard"></section>
+
+        <!-- 7. Output -->
+        <section class="card output-card">
+          <div class="output-tabs">
+            <h2 class="card-title">📟 ผลลัพธ์</h2>
+          </div>
+          <div id="feedback" class="feedback hidden"></div>
+          <div id="output" class="output"><span class="muted">กด "ทดลองรัน" เพื่อดูผลลัพธ์ที่นี่</span></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal ยืนยัน / แจ้งผล -->
+  <div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <div class="modal-icon" id="modalIcon">🤖</div>
+      <h3 id="modalTitle">หัวข้อ</h3>
+      <p id="modalText"></p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="modalCancel" type="button">ยกเลิก</button>
+        <button class="btn btn-check" id="modalOk" type="button">ตกลง</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast hidden" id="toast"></div>
+
+  <noscript>เกมนี้ต้องเปิดใช้งาน JavaScript</noscript>
+  <script src="challenges.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
